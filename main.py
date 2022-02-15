@@ -52,9 +52,11 @@ def main():
 
     data.reset_index(level=0, inplace=True)
     data = data.sort_values(by=[str(i) for i in range(2021, 2015, -1)], ascending=False)
-    ax = parallel_coordinates(data, 'Technology', colormap=plt.get_cmap('gist_ncar'), linewidth=3, alpha=0.8)
+    ax = parallel_coordinates(data, 'Technology', colormap=plt.get_cmap('gist_ncar'), linewidth=3, alpha=0.7, marker='o', markersize=7)
 
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+    plt.title('Most Loved Programming Languages '
+              '\nStack Overflow Developer Survey data 2011-2021', fontsize=22)
 
     plt.show()
 

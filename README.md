@@ -2,6 +2,8 @@ pyverflow graphs
 -
 Nicely (not yet though) displaying stackoverflow developer survey data since 2015 till 2021 (as of the time of writing)
 
+![Image](./most_loved.png)
+
 ### How to prepare data
 1. Download all of the data from [here](https://insights.stackoverflow.com/survey)
 2. Create directories for each folder `mkdir {2011..2021}`
