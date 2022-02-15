@@ -134,6 +134,104 @@ def parse_two_sixteen_loved_dreaded(filepath):
 
     return new_df
 
+def parse_two_seventeen_loved_dreaded(filepath):
+    columns_to_use = ['HaveWorkedLanguage', 'WantWorkLanguage']
+    df = pd.read_csv(filepath, usecols=columns_to_use)
+    df.dropna(inplace=True)
+    df.rename(columns={'HaveWorkedLanguage': 'tech_do', 'WantWorkLanguage': 'tech_want'}, inplace=True)
+    # df.reset_index(inplace=True)
+    df.tech_do = df.tech_do.str.split('; ')
+    df.tech_want = df.tech_want.str.split('; ')
+
+    mlb = MultiLabelBinarizer(sparse_output=True)
+
+    mlb.fit(df['tech_do'])
+    # mlb.fit(df['tech_want'])
+    transformed = mlb.transform(df['tech_do'])
+
+    do = pd.DataFrame.sparse.from_spmatrix(
+            transformed,
+            index=df.index,
+            columns=mlb.classes_) * 1
+
+    want = pd.DataFrame.sparse.from_spmatrix(
+            mlb.transform(df['tech_want']),
+            index=df.index,
+            columns=mlb.classes_) * 1
+    # logical and
+    loved = (do + want) > 1
+    # no
+    wanted = (do < want) * 1
+    # nonlogical
+    dreaded = (do > want) * 1
+
+    # users nums
+    users_who_use = do.sum(axis=0)
+    users_who_dont_use = want.sum(axis=0)
+
+    loved = loved.sum(axis=0) / users_who_use
+    wanted = wanted.sum(axis=0) / users_who_dont_use
+    dreaded = dreaded.sum(axis=0) / users_who_use
+
+    loved = loved.T
+    wanted = wanted.T
+    dreaded = dreaded.T
+
+    new_cols = ['loved', 'wanted', 'dreaded']
+    new_df = pd.concat([loved, wanted, dreaded], axis=1)
+    new_df.columns = new_cols
+
+    return new_df
+
+
+def parse_two_eighteen_loved_dreaded(filepath):
+    columns_to_use = ['LanguageWorkedWith', 'LanguageDesireNextYear']
+    df = pd.read_csv(filepath, usecols=columns_to_use)
+    df.dropna(inplace=True)
+    df.rename(columns={'LanguageWorkedWith': 'tech_do', 'LanguageDesireNextYear': 'tech_want'}, inplace=True)
+    # df.reset_index(inplace=True)
+    df.tech_do = df.tech_do.str.split(';')
+    df.tech_want = df.tech_want.str.split(';')
+
+    mlb = MultiLabelBinarizer(sparse_output=True)
+
+    mlb.fit(df['tech_do'])
+    # mlb.fit(df['tech_want'])
+    transformed = mlb.transform(df['tech_do'])
+
+    do = pd.DataFrame.sparse.from_spmatrix(
+            transformed,
+            index=df.index,
+            columns=mlb.classes_) * 1
+
+    want = pd.DataFrame.sparse.from_spmatrix(
+            mlb.transform(df['tech_want']),
+            index=df.index,
+            columns=mlb.classes_) * 1
+    # logical and
+    loved = (do + want) > 1
+    # no
+    wanted = (do < want) * 1
+    # nonlogical
+    dreaded = (do > want) * 1
+
+    # users nums
+    users_who_use = do.sum(axis=0)
+    users_who_dont_use = want.sum(axis=0)
+
+    loved = loved.sum(axis=0) / users_who_use
+    wanted = wanted.sum(axis=0) / users_who_dont_use
+    dreaded = dreaded.sum(axis=0) / users_who_use
+
+    loved = loved.T
+    wanted = wanted.T
+    dreaded = dreaded.T
+
+    new_cols = ['loved', 'wanted', 'dreaded']
+    new_df = pd.concat([loved, wanted, dreaded], axis=1)
+    new_df.columns = new_cols
+
+    return new_df
 
 def main():
     two_fifteen_datapath = './2015/2015 Stack Overflow Developer Survey Responses.csv'
@@ -145,6 +243,16 @@ def main():
     two_sixteen_data = parse_two_sixteen_loved_dreaded(two_sixteen_datapath)
     two_sixteen_data.to_csv('2016_loved_dreaded.csv')
     print(two_sixteen_data.head())
+
+    two_seventeen_datapath = './2017/survey_results_public.csv'
+    two_seventeen_data = parse_two_seventeen_loved_dreaded(two_seventeen_datapath)
+    two_seventeen_data.to_csv('2017_loved_dreaded.csv')
+    print(two_seventeen_data.head())
+
+    two_eighteen_datapath = './2018/survey_results_public.csv'
+    two_eighteen_data = parse_two_eighteen_loved_dreaded(two_eighteen_datapath)
+    two_eighteen_data.to_csv('2018_loved_dreaded.csv')
+    print(two_eighteen_data.head())
 
 
 if __name__ == '__main__':
